@@ -1,0 +1,5 @@
+# Architecture d'un yaml pour une application de vote avec Docker Compose
+
+# Version 3.8 car elle est compatible avec la plupart des fonctionnalités modernes de Docker Compose
+
+# 
