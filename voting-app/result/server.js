@@ -11,7 +11,7 @@ let express = require("express"),
 
 io.set("transports", ["polling"])
 
-const port = 8888
+const port = 8888 // Port pour afficher les résultats du vote sur le navigateur
 
 io.sockets.on("connection", function (socket) {
 
