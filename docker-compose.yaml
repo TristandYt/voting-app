@@ -1,18 +1,14 @@
 version: "3.8"
-
-# Définition de tous les services (conteneurs) de l'application
-services:
-  
+# --- DÉCLARATION DES SERVICES --- 
   # 1. Base de données PostgreSQL (Stockage des votes)
+services:
   db:
-    image: postgres:15-alpine # Image officielle, recommandée par les développeurs (net7.0)
+    image: postgres:15-alpine
     container_name: voting_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
-    
-    # Persistance des données dans un volume nommé (pour éviter la perte au redémarrage)
     volumes:
       - postgres-data:/var/lib/postgresql/data
       
@@ -65,8 +61,6 @@ services:
     environment:
       OPTION_A: "Chats"
       OPTION_B: "Chiens"
-    volumes:
-      - vote-data:/app/vote 
     restart: on-failure
     networks:
       - app-network
