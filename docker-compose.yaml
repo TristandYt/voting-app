@@ -1,7 +1,7 @@
-version: "3.8"
 # --- DÉCLARATION DES SERVICES --- 
-  # 1. Base de données PostgreSQL (Stockage des votes)
 services:
+  
+  # 1. Base de données PostgreSQL (Stockage des votes)
   db:
     image: postgres:15-alpine
     container_name: voting_db
@@ -9,16 +9,17 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    # Assure la persistance des données
     volumes:
       - postgres-data:/var/lib/postgresql/data
       
-    # Vérification de l'état de santé : assure que la BDD est accessible avant de démarrer les clients
+    # Vérification de l'état de santé
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 10s # Donne le temps à la BDD de démarrer initialement
       
     restart: always
     networks:
@@ -26,10 +27,10 @@ services:
 
   # 2. Base de données de mise en cache Redis (Queue de messages)
   redis:
-    image: redis:6-alpine # Image officielle, légère
+    image: redis:6-alpine
     container_name: voting_redis
     
-    # Vérification de l'état de santé : assure que Redis est prêt à recevoir/envoyer des messages
+    # Vérification de l'état de santé
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -42,7 +43,6 @@ services:
 
   # 3. Application Web de Vote (Python Flask)
   vote:
-    # Contexte de construction à partir du Dockerfile fourni
     build:
       context: ./voting-app
       dockerfile: ./vote/Dockerfile
@@ -52,12 +52,11 @@ services:
     ports:
       - "5000:8080" 
       
-    # Dépend de Redis pour le stockage des votes en queue
+    # Dépend de Redis
     depends_on:
       redis:
-        condition: service_healthy # Attendre que Redis soit fonctionnel
+        condition: service_healthy 
         
-    # Variables d'environnement pour l'application
     environment:
       OPTION_A: "Chats"
       OPTION_B: "Chiens"
@@ -67,28 +66,24 @@ services:
 
   # 4. Service Worker (.NET Core)
   worker:
-    # Contexte de construction à partir du Dockerfile fourni
     build:
       context: ./voting-app
       dockerfile: ./worker/Dockerfile
     container_name: voting_worker
     
-    # Dépend de Redis (pour lire les votes) et de la BDD (pour écrire les résultats)
+    # Dépend de Redis (lire) et de la BDD (écrire)
     depends_on:
       redis:
         condition: service_healthy
       db:
-        condition: service_healthy # Attendre que la BDD soit fonctionnelle
+        condition: service_healthy
         
-    # Note: Les hôtes 'db' et 'redis' sont déjà configurés via ENV dans le Dockerfile du Worker.
-      
     restart: on-failure
     networks:
       - app-network
 
   # 5. Application Web de Résultats (Node.js)
   result:
-    # Contexte de construction. Le Dockerfile doit être créé.
     build:
       context: ./voting-app
       dockerfile: ./result/Dockerfile 
@@ -98,7 +93,7 @@ services:
     ports:
       - "5001:8888" 
       
-    # Dépend de la BDD (pour lire les résultats)
+    # Dépend de la BDD (lire les résultats)
     depends_on:
       db:
         condition: service_healthy
@@ -109,12 +104,12 @@ services:
 
 # --- DÉCLARATION DES VOLUMES ---
 volumes:
-  # Volume nommé pour la persistance des données de PostgreSQL (db)
+  # Volume nommé pour la persistance des données de PostgreSQL
   postgres-data:
     driver: local
 
 # --- DÉCLARATION DES RÉSEAUX ---
 networks:
-  # Réseau 'bridge' interne pour l'isolation des composants et la communication par nom de service
+  # Réseau interne pour la communication entre services
   app-network:
     driver: bridge
