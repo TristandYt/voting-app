@@ -14,10 +14,21 @@ namespace Worker
     {
         public static int Main(string[] args)
         {
+            // --- MODIFICATIONS POUR UTILISER LES VARIABLES D'ENVIRONNEMENT ---
+            // 1. Récupération des hôtes depuis l'environnement
+            var pgsqlHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "db"; // Utilise 'db' si non défini
+            var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST") ?? "redis"; // Utilise 'redis' si non défini
+            
+            // 2. Construction de la chaîne de connexion PostgreSQL avec l'hôte dynamique
+            // Remplace l'ancien "Server=localhost;..."
+            var pgsqlConnectionString = $"Server={pgsqlHost};Username=postgres;Password=postgres;";
+            // ------------------------------------------------------------------
+
             try
             {
-                var pgsql = OpenDbConnection("Server=localhost;Username=postgres;Password=postgres;");
-                var redisConn = OpenRedisConnection("localhost");
+                // Utilisation des variables dynamiques pour la connexion initiale
+                var pgsql = OpenDbConnection(pgsqlConnectionString);
+                var redisConn = OpenRedisConnection(redisHost);
                 var redis = redisConn.GetDatabase();
 
                 var keepAliveCommand = pgsql.CreateCommand();
@@ -31,7 +42,8 @@ namespace Worker
                     // Se reconnecter à Redis si la connexion est perdue
                     if (redisConn == null || !redisConn.IsConnected) {
                         Console.WriteLine("Reconnecting Redis");
-                        redisConn = OpenRedisConnection("REDIS_HOST");
+                        // --- MODIFICATION: Utilisation de l'hôte Redis dynamique ---
+                        redisConn = OpenRedisConnection(redisHost);
                         redis = redisConn.GetDatabase();
                     }
                     string json = redis.ListLeftPopAsync("votes").Result;
@@ -44,7 +56,8 @@ namespace Worker
                         if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
                         {
                             Console.WriteLine("Reconnecting DB");
-                            pgsql = OpenDbConnection("Server=localhost;Username=postgres;Password=postgres;");
+                            // --- MODIFICATION: Utilisation de la chaîne de connexion dynamique ---
+                            pgsql = OpenDbConnection(pgsqlConnectionString);
                         }
                         else
                         {
