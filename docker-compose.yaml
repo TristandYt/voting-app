@@ -65,7 +65,8 @@ services:
     environment:
       OPTION_A: "Chats"
       OPTION_B: "Chiens"
-      
+    volumes:
+      - vote-data:/app/vote 
     restart: on-failure
     networks:
       - app-network
