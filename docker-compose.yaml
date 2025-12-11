@@ -107,7 +107,6 @@ volumes:
   # Volume nommé pour la persistance des données de PostgreSQL
   postgres-data:
     driver: local
-
 # --- DÉCLARATION DES RÉSEAUX ---
 networks:
   # Réseau interne pour la communication entre services
