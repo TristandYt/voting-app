@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+  
   db:
     image: postgres:15-alpine
     environment:
@@ -15,7 +16,7 @@ services:
       restart_policy:
         condition: on-failure
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.role == manager] 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -37,9 +38,7 @@ services:
       retries: 3
 
   vote:
-    build:
-      context: ./voting-app
-      dockerfile: ./vote/Dockerfile
+    image: voting-app_vote 
     ports:
       - "5000:8080"
     environment:
@@ -55,20 +54,16 @@ services:
         constraints: [node.role == worker]
 
   worker:
-    build:
-      context: ./voting-app
-      dockerfile: ./worker/Dockerfile
+    image: voting-app_worker 
     networks:
       - app-network
     deploy:
       restart_policy:
         condition: on-failure
-      replicas: 1
+      replicas: 1 
 
   result:
-    build:
-      context: ./voting-app
-      dockerfile: ./result/Dockerfile 
+    image: voting-app_result 
     ports:
       - "5001:8888"
     networks:
@@ -76,11 +71,11 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-      replicas: 1
-
+      replicas: 2 
+      
 volumes:
   postgres-data:
 
 networks:
   app-network:
-    driver: overlay
+    driver: overlay 
