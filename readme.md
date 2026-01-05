@@ -98,10 +98,10 @@ docker swarm init
 
 ### 3. Déploiement de la Stack avec Docker Swarm
 
-Une fois que Swarm est initialisé, déployez la stack à l'aide du fichier `docker-stack.yml` en exécutant :
+Une fois que Swarm est initialisé, déployez la stack à l'aide du fichier `docker-stack.yaml` en exécutant :
 
 ```bash
-docker stack deploy -c docker-stack.yml vote-app
+docker stack deploy -c docker-stack.yaml vote-app
 ```
 
 ### 4. Vérification du Déploiement
@@ -209,7 +209,7 @@ Voici un récapitulatif de toutes les commandes essentielles pour travailler ave
 * **Déployer la stack** :
 
   ```bash
-  docker stack deploy -c docker-stack.yml vote-app
+  docker stack deploy -c docker-stack.yaml vote-app
   ```
 * **Vérifier l’état des services** :
 
