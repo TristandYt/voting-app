@@ -234,5 +234,15 @@ Voici un récapitulatif de toutes les commandes essentielles pour travailler ave
   ```bash
   docker service logs vote-app_<nom_du_service>
   ```
+* **Reglage des logs services** :
 
+  ```bash
+  docker tag voting-app-vote:latest voting-app_vote:latest
+
+  docker tag voting-app-worker:latest voting-app_worker:latest
+
+  docker tag voting-app-result:latest voting-app_result:latest
+
+  docker stack deploy -c docker-stack.yaml vote-app
+  ```
 ---
